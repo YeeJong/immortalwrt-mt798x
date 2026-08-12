@@ -35,6 +35,10 @@ jobs:
       run: |
         cp -f defconfig/mt7981-ax3000.config .config
         echo "CONFIG_TARGET_mediatek_mt7981_DEVICE_ikuai_q3000=y" >> .config
+        echo "CONFIG_PACKAGE_luci-app-store=y" >> .config
+      echo "CONFIG_PACKAGE_luci-theme-argon=y" >> .config
+      echo "CONFIG_PACKAGE_luci-app-argon-config=y" >> .config
+      echo "CONFIG_PACKAGE_luci-app-turboacc=y" >> .config
         make defconfig
 
     - name: 6. 下载所需依赖包
