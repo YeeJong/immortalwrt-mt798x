@@ -86,7 +86,7 @@
 
 			partition@580000 {
 				label = "ubi";
-				reg = <0x580000 0x4000000>;
+				reg = <0x580000 0x7a80000>;
 			};
 		};
 	};
@@ -166,7 +166,7 @@
 
 				port@0 {
 					reg = <0>;
-					label = "lan1";
+					label = "lan3";
 				};
 
 				port@1 {
@@ -176,7 +176,7 @@
 
 				port@2 {
 					reg = <2>;
-					label = "lan3";
+					label = "lan1";
 				};
 
 				port@3 {
