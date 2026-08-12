@@ -36,9 +36,9 @@ jobs:
         cp -f defconfig/mt7981-ax3000.config .config
         echo "CONFIG_TARGET_mediatek_mt7981_DEVICE_ikuai_q3000=y" >> .config
         echo "CONFIG_PACKAGE_luci-app-store=y" >> .config
-      echo "CONFIG_PACKAGE_luci-theme-argon=y" >> .config
-      echo "CONFIG_PACKAGE_luci-app-argon-config=y" >> .config
-      echo "CONFIG_PACKAGE_luci-app-turboacc=y" >> .config
+        echo "CONFIG_PACKAGE_luci-theme-argon=y" >> .config
+        echo "CONFIG_PACKAGE_luci-app-argon-config=y" >> .config
+        echo "CONFIG_PACKAGE_luci-app-turboacc=y" >> .config
         make defconfig
 
     - name: 6. 下载所需依赖包
@@ -52,5 +52,5 @@ jobs:
     - name: 8. 📦 提取并打包编译好的固件
       uses: actions/upload-artifact@v4
       with:
-        name: Q3000-Firmware
-        path: bin/targets/mediatek/mt7981/*sysupgrade.bin
+        name: IK-Q3000-iStoreOS-DIY
+        path: bin/targets/mediatek/mt7981/*.bin
