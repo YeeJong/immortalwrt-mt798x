@@ -39,6 +39,14 @@ jobs:
         echo "CONFIG_PACKAGE_luci-theme-argon=y" >> .config
         echo "CONFIG_PACKAGE_luci-app-argon-config=y" >> .config
         echo "CONFIG_PACKAGE_luci-app-turboacc=y" >> .config
+        echo "CONFIG_PACKAGE_luci-app-istorex=y" >> .config
+        echo "CONFIG_PACKAGE_app-meta-istorex=y" >> .config
+        echo "CONFIG_PACKAGE_kmod-md-mod=y" >> .config
+        echo "CONFIG_PACKAGE_kmod-md-raid0=y" >> .config
+        echo "CONFIG_PACKAGE_kmod-md-raid1=y" >> .config
+        echo "CONFIG_PACKAGE_kmod-md-raid10=y" >> .config
+        echo "CONFIG_PACKAGE_mdadm=y" >> .config
+        echo "CONFIG_PACKAGE_luci-app-openclash=y" >> .config
         sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
         make defconfig
 
