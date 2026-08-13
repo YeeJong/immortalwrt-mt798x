@@ -31,14 +31,18 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: 5. 生成 Q3000 专属配置文件
+    - name: 5. 生成 Q3000 专属配置 (全中文+直达 iStoreX)
       run: |
         cp -f defconfig/mt7981-ax3000.config .config
+        # 1. 基础设备与常用插件
         echo "CONFIG_TARGET_mediatek_mt7981_DEVICE_ikuai_q3000=y" >> .config
         echo "CONFIG_PACKAGE_luci-app-store=y" >> .config
         echo "CONFIG_PACKAGE_luci-theme-argon=y" >> .config
         echo "CONFIG_PACKAGE_luci-app-argon-config=y" >> .config
         echo "CONFIG_PACKAGE_luci-app-turboacc=y" >> .config
+        echo "CONFIG_PACKAGE_luci-app-openclash=y" >> .config
+        
+        # 2. iStoreX 主页及底层硬盘依赖
         echo "CONFIG_PACKAGE_luci-app-istorex=y" >> .config
         echo "CONFIG_PACKAGE_app-meta-istorex=y" >> .config
         echo "CONFIG_PACKAGE_kmod-md-mod=y" >> .config
@@ -46,8 +50,32 @@ jobs:
         echo "CONFIG_PACKAGE_kmod-md-raid1=y" >> .config
         echo "CONFIG_PACKAGE_kmod-md-raid10=y" >> .config
         echo "CONFIG_PACKAGE_mdadm=y" >> .config
-        echo "CONFIG_PACKAGE_luci-app-openclash=y" >> .config
+        
+        # 3. 核心：强制开启全局中文，并补齐所有汉化包
+        echo "CONFIG_LUCI_LANG_zh_cn=y" >> .config
+        echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
+        echo "CONFIG_PACKAGE_luci-i18n-istorex-zh-cn=y" >> .config
+        echo "CONFIG_PACKAGE_luci-i18n-openclash-zh-cn=y" >> .config
+        
+        # 4. 替换默认主题为 Argon
         sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
+        
+        # 5. 核武器：注入首次开机自动配置脚本
+        mkdir -p files/etc/uci-defaults
+        cat << "EOF" > files/etc/uci-defaults/99-set-istorex-default
+        #!/bin/sh
+        # 彻底卸载蓝色的简易向导界面，绝不留后患
+        opkg remove luci-app-quickstart --force-depends || true
+        # 强制修改首页指路牌，直达 iStoreX
+        sed -i 's/cgi-bin\/luci/cgi-bin\/luci\/admin\/istorex/g' /www/index.html
+        # 在底层强制锁定系统语言为中文
+        uci set luci.main.lang=zh_cn
+        uci commit luci
+        # 脚本执行完毕后自毁
+        exit 0
+        EOF
+        chmod +x files/etc/uci-defaults/99-set-istorex-default
+        
         make defconfig
 
     - name: 6. 下载所需依赖包
