@@ -33,12 +33,15 @@ jobs:
 
     - name: 5. 生成 Q3000 专属配置 (接入官方源完美纯血版)
       run: |
-        # 🔑 终极破局点：直接接入 iStoreOS 官方的全局软件源！
+        # 🔑 先清理自带的同名源，防止 Duplicate 冲突！
+        sed -i '/istore/d' feeds.conf.default
+        sed -i '/openclash/d' feeds.conf.default
+        
+        # 重新注入绝对纯正的官方源
         echo "src-git istore https://github.com/linkease/istore;main" >> feeds.conf.default
         ./scripts/feeds update istore
         ./scripts/feeds install -a -p istore
         
-        # 把小猫咪的源码也按最标准的源方式接入，确保万无一失
         echo "src-git openclash https://github.com/vernesong/OpenClash.git;master" >> feeds.conf.default
         ./scripts/feeds update openclash
         ./scripts/feeds install -a -p openclash
