@@ -67,16 +67,16 @@ jobs:
         sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
         
         # 📦 核心绝杀：物理提取官方纯中文包，强行注入进固件内部！
-        # 在 OpenWrt 编译中，放到 files/ 文件夹下的任何东西，都会在最后直接覆盖系统原文件。
         mkdir -p files/
         cd files
-        # 下载你在截图里看到的那个官方 100% 完美的中文版安装包
         wget https://istore.istoreos.com/repo/all/nas_luci/luci-app-istorex_0.6.6_all.ipk
-        # 像剥洋葱一样，把它的真实网页文件解压出来
-        tar xzf luci-app-istorex_0.6.6_all.ipk data.tar.gz
-        tar xzf data.tar.gz
-        # 清除压缩包垃圾，并删除可能导致冲突的配置文件，只保留纯正的网页翻译数据
-        rm -rf data.tar.gz luci-app-istorex_0.6.6_all.ipk etc/config
+        # 第一层解压：提取出 ipk 内部的所有组件
+        tar -xf luci-app-istorex_0.6.6_all.ipk
+        # 第二层解压：用通配符自动匹配 data.tar 压缩包并解开真实网页文件
+        tar -xf data.tar.*
+        # 销毁压缩包垃圾和可能导致冲突的初始配置文件
+        rm -f control.tar.* data.tar.* debian-binary *.ipk
+        rm -rf etc/config
         cd ..
         
         # 5. 首次启动自动执行脚本：卸载简易向导并锁定大门
