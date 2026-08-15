@@ -28,7 +28,11 @@ jobs:
 
     - name: 3. 更新并安装插件源 (Feeds)
       run: |
-        # 仅拉取 iStore 软件源与 OpenClash 官方源
+        # 🔑 先清理底包自带的同名源，绝对防止 Duplicate 冲突！
+        sed -i '/istore/d' feeds.conf.default
+        sed -i '/openclash/d' feeds.conf.default
+        
+        # 注入最新的 iStore 软件源与 OpenClash 官方源
         echo "src-git istore https://github.com/linkease/istore;main" >> feeds.conf.default
         echo "src-git openclash https://github.com/vernesong/OpenClash.git;master" >> feeds.conf.default
         
