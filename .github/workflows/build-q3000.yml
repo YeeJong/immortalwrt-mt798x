@@ -31,61 +31,60 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: 5. 生成 Q3000 专属配置 (接入官方源完美纯血版)
+    - name: 5. 生成 Q3000 专属配置 (终极物理注入纯血中文版)
       run: |
-        # 🔑 先清理自带的同名源，防止 Duplicate 冲突！
+        # 1. 接入 iStoreOS 和 小猫咪官方软件源
         sed -i '/istore/d' feeds.conf.default
         sed -i '/openclash/d' feeds.conf.default
-        
-        # 重新注入绝对纯正的官方源
         echo "src-git istore https://github.com/linkease/istore;main" >> feeds.conf.default
-        ./scripts/feeds update istore
-        ./scripts/feeds install -a -p istore
-        
         echo "src-git openclash https://github.com/vernesong/OpenClash.git;master" >> feeds.conf.default
-        ./scripts/feeds update openclash
+        ./scripts/feeds update istore openclash
+        ./scripts/feeds install -a -p istore
         ./scripts/feeds install -a -p openclash
 
         cp -f defconfig/mt7981-ax3000.config .config
         
-        # 1. 基础设备与主题
+        # 2. 基础设备与必要插件
         echo "CONFIG_TARGET_mediatek_mt7981_DEVICE_ikuai_q3000=y" >> .config
         echo "CONFIG_PACKAGE_luci-theme-argon=y" >> .config
         echo "CONFIG_PACKAGE_luci-app-argon-config=y" >> .config
         echo "CONFIG_PACKAGE_luci-app-turboacc=y" >> .config
-        
-        # 2. 从官方源原生编译 iStore 和 iStoreX（这次绝对带纯正中文包）
         echo "CONFIG_PACKAGE_luci-app-store=y" >> .config
         echo "CONFIG_PACKAGE_luci-app-istorex=y" >> .config
-        echo "CONFIG_PACKAGE_luci-i18n-istorex-zh-cn=y" >> .config
-        
-        # 3. 编译 OpenClash (小猫咪)
         echo "CONFIG_PACKAGE_luci-app-openclash=y" >> .config
         echo "CONFIG_PACKAGE_luci-i18n-openclash-zh-cn=y" >> .config
         
-        # 4. iStoreX 运行所需要的底层驱动
+        # 3. 底层依赖驱动
         echo "CONFIG_PACKAGE_kmod-md-mod=y" >> .config
         echo "CONFIG_PACKAGE_kmod-md-raid0=y" >> .config
         echo "CONFIG_PACKAGE_kmod-md-raid1=y" >> .config
         echo "CONFIG_PACKAGE_kmod-md-raid10=y" >> .config
         echo "CONFIG_PACKAGE_mdadm=y" >> .config
         
-        # 5. 全局中文总开关
+        # 4. 全局中文总开关
         echo "CONFIG_LUCI_LANG_zh_cn=y" >> .config
         echo "CONFIG_PACKAGE_luci-i18n-base-zh-cn=y" >> .config
-        
-        # 6. 替换默认主题为 Argon
         sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
         
-        # 7. 首次启动自动执行脚本：卸载简易向导并锁定大门
+        # 📦 核心绝杀：物理提取官方纯中文包，强行注入进固件内部！
+        # 在 OpenWrt 编译中，放到 files/ 文件夹下的任何东西，都会在最后直接覆盖系统原文件。
+        mkdir -p files/
+        cd files
+        # 下载你在截图里看到的那个官方 100% 完美的中文版安装包
+        wget https://istore.istoreos.com/repo/all/nas_luci/luci-app-istorex_0.6.6_all.ipk
+        # 像剥洋葱一样，把它的真实网页文件解压出来
+        tar xzf luci-app-istorex_0.6.6_all.ipk data.tar.gz
+        tar xzf data.tar.gz
+        # 清除压缩包垃圾，并删除可能导致冲突的配置文件，只保留纯正的网页翻译数据
+        rm -rf data.tar.gz luci-app-istorex_0.6.6_all.ipk etc/config
+        cd ..
+        
+        # 5. 首次启动自动执行脚本：卸载简易向导并锁定大门
         mkdir -p files/etc/uci-defaults
         cat << "EOF" > files/etc/uci-defaults/99-set-istorex-default
         #!/bin/sh
-        # 彻底干掉蓝色的简易小白向导
         opkg remove luci-app-quickstart --force-depends || true
-        # 强制将默认大门修改为 iStoreX
         sed -i 's/cgi-bin\/luci/cgi-bin\/luci\/admin\/istorex/g' /www/index.html
-        # 在底层强制锁定中文
         uci set luci.main.lang=zh_cn
         uci commit luci
         exit 0
